@@ -4,21 +4,21 @@
   import Button from "@/components/ui/button/button.svelte";
   import { Input } from "@/components/ui/input";
   import Label from "@/components/ui/label/label.svelte";
-  import HourTab from "./(tabs)/hour-tab.svelte";
+  import type { ReminderSaveResult } from "@/data/types";
   import MinuteTab from "./(tabs)/minute-tab.svelte";
   import { getDataContext } from "./DataContext.svelte";
   import type { Reminder } from "./reminder-columns";
 
   let { open = $bindable() }: { open: boolean } = $props();
 
-  let reminder = $state<Reminder>({
-    id: crypto.randomUUID(),
+  type ReminderData = {
+    title: "New reminder";
+    message: "";
+  };
+
+  let reminder = $state<ReminderData>({
     title: "New reminder",
-    desc: "",
     message: "",
-    active: true,
-    interval: "",
-    type: "minute_hourly",
   });
 
   const data = getDataContext();
@@ -31,19 +31,24 @@
     if (reminder.message.length > 0) saveStateValid = true;
   });
 
-  const onSave = () => {
+  const onSave = (result: ReminderSaveResult) => {
     open = false;
 
-    data.add(reminder);
+    const new_reminder: Reminder = {
+      id: crypto.randomUUID(),
+      active: true,
+      title: reminder.title,
+      message: reminder.message,
+      desc: result.desc,
+      interval: result.interval,
+      type: result.type,
+    };
+
+    data.add(new_reminder);
 
     reminder = {
-      id: crypto.randomUUID(),
       title: "New reminder",
       message: "",
-      desc: "",
-      active: true,
-      interval: "",
-      type: "minute_hourly",
     };
   };
 </script>
@@ -67,31 +72,24 @@
       </div>
     </div>
     <Tabs.Root value="minutes">
-      <Tabs.List class="grid w-full grid-cols-6">
+      <Tabs.List class="grid w-full grid-cols-2">
         <Tabs.Trigger value="minutes">By minute</Tabs.Trigger>
         <Tabs.Trigger value="hours">Hourly</Tabs.Trigger>
-        <Tabs.Trigger value="days">Daily</Tabs.Trigger>
+        <!-- <Tabs.Trigger value="days">Daily</Tabs.Trigger>
         <Tabs.Trigger value="weeks">Weekly</Tabs.Trigger>
         <Tabs.Trigger value="months">Monthly</Tabs.Trigger>
-        <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
+        <Tabs.Trigger value="custom">Custom</Tabs.Trigger> -->
       </Tabs.List>
       <Tabs.Content value="minutes">
-        <MinuteTab
-          bind:interval={reminder.interval}
-          bind:type={reminder.type}
-          bind:desc={reminder.desc}
-        />
+        <MinuteTab {onSave} />
       </Tabs.Content>
       <Tabs.Content value="hours">
-        <HourTab
+        <!-- <HourTab
           bind:interval={reminder.interval}
           bind:type={reminder.type}
           bind:desc={reminder.desc}
-        />
+        /> -->
       </Tabs.Content>
     </Tabs.Root>
-    <Dialog.Footer>
-      <Button onclick={onSave} class="w-full">Save</Button>
-    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

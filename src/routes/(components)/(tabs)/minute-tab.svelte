@@ -1,20 +1,39 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
+  import { Footer } from "@/components/ui/dialog";
   import type { ReminderType } from "../reminder-columns";
+  import type { ReminderSaveResult } from "@/data/types";
 
   const intervals = [1, 5, 10, 15, 20, 30, 45];
   let selectedInterval = $state(intervals[0]);
 
-  let {
-    interval = $bindable(),
-    desc = $bindable(),
-    type = $bindable(),
-  }: {
-    interval: string;
-    desc: string;
-    type: ReminderType;
-  } = $props();
+  let interval = $state("");
+  let desc = $state("");
+  let type = $state<ReminderType>("minute_hourly");
+
+  // let {
+  //   interval = $bindable(),
+  //   desc = $bindable(),
+  //   type = $bindable(),
+  // }: {
+  //   interval: string;
+  //   desc: string;
+  //   type: ReminderType;
+  // } = $props();
+
+
+  let { onSave }: { onSave: (result: ReminderSaveResult) => void } = $props();
+
+  function save() {
+    const result: ReminderSaveResult = {
+      interval,
+      desc,
+      type,
+    };
+
+    onSave(result);
+  }
 
   $effect(() => {
     let minute =
@@ -62,5 +81,8 @@
         {desc}
       </Card.Description>
     </div>
+    <Card.Footer>
+      <Button onclick={save} class="w-full">Save</Button>
+    </Card.Footer>
   </Card.Content>
 </Card.Root>

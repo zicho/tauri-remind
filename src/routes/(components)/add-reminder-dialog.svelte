@@ -4,18 +4,21 @@
   import Button from "@/components/ui/button/button.svelte";
   import { Input } from "@/components/ui/input";
   import Label from "@/components/ui/label/label.svelte";
+  import HourTab from "./(tabs)/hour-tab.svelte";
   import MinuteTab from "./(tabs)/minute-tab.svelte";
   import { getDataContext } from "./DataContext.svelte";
-  import type { Reminder, ReminderType } from "./reminder-columns";
+  import type { Reminder } from "./reminder-columns";
 
   let { open = $bindable() }: { open: boolean } = $props();
 
   let reminder = $state<Reminder>({
     id: crypto.randomUUID(),
     title: "New reminder",
+    desc: "",
     message: "",
     active: true,
     interval: "",
+    type: "minute_hourly",
   });
 
   const data = getDataContext();
@@ -28,17 +31,8 @@
     if (reminder.message.length > 0) saveStateValid = true;
   });
 
-  const onSave = ({
-    interval,
-    type,
-  }: {
-    interval: string;
-    type: ReminderType;
-  }) => {
+  const onSave = () => {
     open = false;
-
-    reminder.interval = interval;
-    reminder.type = type;
 
     data.add(reminder);
 
@@ -46,9 +40,10 @@
       id: crypto.randomUUID(),
       title: "New reminder",
       message: "",
+      desc: "",
       active: true,
       interval: "",
-      type,
+      type: "minute_hourly",
     };
   };
 </script>
@@ -67,7 +62,7 @@
         <Input id="name" bind:value={reminder.title} />
       </div>
       <div>
-        <Label for="username" class="font-semibold">Description</Label>
+        <Label for="username" class="font-semibold">Message</Label>
         <Input id="username" bind:value={reminder.message} />
       </div>
     </div>
@@ -81,11 +76,22 @@
         <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="minutes">
-        <MinuteTab bind:saveStateValid onSave={(x) => onSave(x)} />
+        <MinuteTab
+          bind:interval={reminder.interval}
+          bind:type={reminder.type}
+          bind:desc={reminder.desc}
+        />
+      </Tabs.Content>
+      <Tabs.Content value="hours">
+        <HourTab
+          bind:interval={reminder.interval}
+          bind:type={reminder.type}
+          bind:desc={reminder.desc}
+        />
       </Tabs.Content>
     </Tabs.Root>
     <Dialog.Footer>
-      <Button class="w-full">Save</Button>
+      <Button onclick={onSave} class="w-full">Save</Button>
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

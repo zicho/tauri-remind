@@ -3,36 +3,31 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import type { ReminderType } from "../reminder-columns";
 
-  let mode = $state<"fixed" | "interval">("fixed");
-
   const intervals = [1, 5, 10, 15, 20, 30, 45];
-
   let selectedInterval = $state(intervals[0]);
 
   let {
-    onSave,
-    saveStateValid = $bindable(),
+    interval = $bindable(),
+    desc = $bindable(),
+    type = $bindable(),
   }: {
-    onSave: ({
-      interval,
-      type,
-    }: {
-      interval: string;
-      type: ReminderType;
-    }) => void;
-    saveStateValid: boolean;
+    interval: string;
+    desc: string;
+    type: ReminderType;
   } = $props();
 
-  const minute = $derived(
-    mode === "interval" ? `*/${selectedInterval}` : selectedInterval
-  );
-
-  const save = () => {
-    onSave({
-      interval: `${minute} * * * *`,
-      type: mode === "fixed" ? "minute_hourly" : "minute_interval",
-    });
-  };
+  $effect(() => {
+    let minute =
+      type === "minute_interval" ? `*/${selectedInterval}` : selectedInterval;
+    interval = `${minute} * * * *`;
+    if (type === "minute_hourly") {
+      desc = `This reminder will trigger at a specific minute of every hour, e.g.,
+          "at minute ${selectedInterval} past the hour."`;
+    } else {
+      desc = `This reminder will trigger at recurring intervals within the hour,
+          e.g., "every ${selectedInterval}th minute."`;
+    }
+  });
 </script>
 
 <Card.Root>
@@ -41,13 +36,13 @@
 
     <div class="flex space-x-4">
       <Button
-        onclick={() => (mode = "fixed")}
-        variant={mode === "fixed" ? "default" : "outline"}
+        onclick={() => (type = "minute_hourly")}
+        variant={type === "minute_hourly" ? "default" : "outline"}
         class="w-full">Fixed Minute</Button
       >
       <Button
-        onclick={() => (mode = "interval")}
-        variant={mode === "interval" ? "default" : "outline"}
+        onclick={() => (type = "minute_interval")}
+        variant={type === "minute_interval" ? "default" : "outline"}
         class="w-full">Recurring Interval</Button
       >
     </div>
@@ -63,22 +58,9 @@
       {/each}
     </div>
     <div class="text-center">
-      {#if mode === "fixed"}
-        <Card.Description>
-          This reminder will trigger at a specific minute of every hour, e.g.,
-          "at minute {selectedInterval} past the hour."
-        </Card.Description>
-      {:else}
-        <Card.Description>
-          This reminder will trigger at recurring intervals within the hour,
-          e.g., "every {selectedInterval}th minute."
-        </Card.Description>
-      {/if}
+      <Card.Description>
+        {desc}
+      </Card.Description>
     </div>
   </Card.Content>
-  <Card.Footer>
-    <Button disabled={!saveStateValid} class="w-full" onclick={save}
-      >Save</Button
-    >
-  </Card.Footer>
 </Card.Root>

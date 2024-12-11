@@ -11,9 +11,10 @@ export type Reminder = {
   id: string;
   title: string;
   message: string;
+  desc: string;
   interval: string;
   active: boolean;
-  type?: ReminderType;
+  type: ReminderType;
 };
 
 export const columns: ColumnDef<Reminder>[] = [
@@ -30,6 +31,14 @@ export const columns: ColumnDef<Reminder>[] = [
     header: ({ column }) =>
       renderComponent(SortButton, {
         label: "Message",
+        onclick: () => column.toggleSorting(column.getIsSorted() === "asc"),
+      }),
+  },
+  {
+    accessorKey: "desc",
+    header: ({ column }) =>
+      renderComponent(SortButton, {
+        label: "Description",
         onclick: () => column.toggleSorting(column.getIsSorted() === "asc"),
       }),
   },

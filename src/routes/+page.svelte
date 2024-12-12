@@ -9,6 +9,8 @@
 
   let open = $state(false);
 
+  $inspect(data);
+
   const tableData = setDataContext(data);
 </script>
 

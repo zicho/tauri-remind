@@ -9,7 +9,7 @@
   const intervals = [1, 5, 10, 15, 20, 30, 45];
   let selectedInterval = $state(intervals[0]);
 
-  let interval = $state("");
+  let cronExpression = $state("");
   let desc = $state("");
   let type = $state<ReminderType>("minute_hourly");
 
@@ -21,7 +21,7 @@
 
   function save() {
     const result: ReminderSaveResult = {
-      interval,
+      cronExpression,
       desc,
       type,
     };
@@ -32,12 +32,12 @@
   $effect(() => {
     let minute =
       type === "minute_interval" ? `*/${selectedInterval}` : selectedInterval;
-    interval = `${minute} * * * *`;
+    cronExpression = `${minute} * * * *`;
 
     if (type === "minute_hourly") {
-      desc = `Triggers ${cronstrue.toString(interval).toLowerCase()}`;
+      desc = `Triggers ${cronstrue.toString(cronExpression).toLowerCase()}`;
     } else {
-      desc = `Triggers ${cronstrue.toString(interval).toLowerCase()} within the hour`;
+      desc = `Triggers ${cronstrue.toString(cronExpression).toLowerCase()} within the hour`;
     }
   });
 
@@ -84,7 +84,7 @@
     <Card.Description class="text-center py-2 text-md">
       {#if minuteValid}
         <p>{desc}</p>
-        <p><strong>Expression: {interval}</strong></p>
+        <p><strong>Expression: {cronExpression}</strong></p>
       {:else}
         <p class="text-destructive">
           Selected interval must be an integer between 1 and 59, not beginning

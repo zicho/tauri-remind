@@ -10,7 +10,7 @@
   let selectedHour = $state(1);
   let selectedMinute = $state(0);
 
-  let interval = $state("");
+  let cronExpression = $state("");
   let desc = $state("");
   let type: ReminderType = "hourly";
 
@@ -22,7 +22,7 @@
 
   function save() {
     const result: ReminderSaveResult = {
-      interval,
+      cronExpression,
       desc,
       type,
     };
@@ -45,8 +45,8 @@
   });
 
   $effect(() => {
-    interval = `${selectedMinute} */${selectedHour} * * *`;
-    desc = `Triggers ${cronstrue.toString(interval).toLowerCase()}`;
+    cronExpression = `${selectedMinute} */${selectedHour} * * *`;
+    desc = `Triggers ${cronstrue.toString(cronExpression).toLowerCase()}`;
   });
 </script>
 
@@ -70,7 +70,7 @@
     <Card.Description class="text-center py-4 text-md">
       {#if minuteValid && hourValid}
         <p>{desc}</p>
-        <p><strong>Expression: {interval}</strong></p>
+        <p><strong>Expression: {cronExpression}</strong></p>
       {:else}
         <p class="text-destructive flex flex-col">
           {#if !hourValid}

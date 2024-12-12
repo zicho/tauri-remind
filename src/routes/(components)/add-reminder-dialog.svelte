@@ -8,6 +8,7 @@
   import { getDataContext } from "./DataContext.svelte";
   import type { Reminder } from "./reminder-columns";
   import HourTab from "./(tabs)/hour-tab.svelte";
+  import CustomTab from "./(tabs)/custom-tab.svelte";
 
   let { open = $bindable() }: { open: boolean } = $props();
 
@@ -36,7 +37,7 @@
       title: initialData.title,
       message: initialData.message,
       desc: result.desc,
-      interval: result.interval,
+      interval: result.cronExpression,
       type: result.type,
     };
 
@@ -82,19 +83,22 @@
       </div>
     </div>
     <Tabs.Root value="minutes">
-      <Tabs.List class="grid w-full grid-cols-2">
+      <Tabs.List class="grid w-full grid-cols-3">
         <Tabs.Trigger value="minutes">By minute</Tabs.Trigger>
         <Tabs.Trigger value="hours">Hourly</Tabs.Trigger>
+        <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
         <!-- <Tabs.Trigger value="days">Daily</Tabs.Trigger>
         <Tabs.Trigger value="weeks">Weekly</Tabs.Trigger>
-        <Tabs.Trigger value="months">Monthly</Tabs.Trigger>
-        <Tabs.Trigger value="custom">Custom</Tabs.Trigger> -->
+        <Tabs.Trigger value="months">Monthly</Tabs.Trigger>-->
       </Tabs.List>
       <Tabs.Content value="minutes">
         <MinuteTab {onSave} {saveStateValid} />
       </Tabs.Content>
       <Tabs.Content value="hours">
         <HourTab {onSave} {saveStateValid} />
+      </Tabs.Content>
+      <Tabs.Content value="custom">
+        <CustomTab {onSave} {saveStateValid} />
       </Tabs.Content>
     </Tabs.Root>
   </Dialog.Content>

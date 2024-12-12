@@ -30,8 +30,10 @@ export class ReminderTableData {
         }
       },
       start: true,
-      timeZone: "America/Los_Angeles",
+      // timeZone: "America/Los_Angeles",
     });
+
+    console.dir(item)
 
     this.data = [item, ...this.data];
     this.#cronJobs.set(item.id, job);

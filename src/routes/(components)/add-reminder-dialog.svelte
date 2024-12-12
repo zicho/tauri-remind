@@ -1,53 +1,49 @@
 <script lang="ts">
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
-  import Button from "@/components/ui/button/button.svelte";
   import { Input } from "@/components/ui/input";
   import Label from "@/components/ui/label/label.svelte";
   import type { ReminderSaveResult } from "@/data/types";
   import MinuteTab from "./(tabs)/minute-tab.svelte";
   import { getDataContext } from "./DataContext.svelte";
   import type { Reminder } from "./reminder-columns";
+  import HourTab from "./(tabs)/hour-tab.svelte";
 
   let { open = $bindable() }: { open: boolean } = $props();
 
   type ReminderData = {
-    title: "New reminder";
-    message: "";
+    title: string;
+    message: string;
   };
 
-  let reminder = $state<ReminderData>({
-    title: "New reminder",
+  let initialData = $state<ReminderData>({
+    title: "",
     message: "",
   });
 
   const data = getDataContext();
 
-  let saveStateValid = $state(false);
-
-  $effect(() => {
-    saveStateValid = false;
-
-    if (reminder.message.length > 0) saveStateValid = true;
-  });
+  let titleValid = $derived(initialData.title.length > 0);
+  let messageValid = $derived(initialData.message.length > 0);
+  let saveStateValid = $derived(titleValid && messageValid);
 
   const onSave = (result: ReminderSaveResult) => {
     open = false;
 
-    const new_reminder: Reminder = {
+    const reminder: Reminder = {
       id: crypto.randomUUID(),
       active: true,
-      title: reminder.title,
-      message: reminder.message,
+      title: initialData.title,
+      message: initialData.message,
       desc: result.desc,
       interval: result.interval,
       type: result.type,
     };
 
-    data.add(new_reminder);
+    data.add(reminder);
 
-    reminder = {
-      title: "New reminder",
+    initialData = {
+      title: "",
       message: "",
     };
   };
@@ -63,12 +59,26 @@
     </Dialog.Header>
     <div class="flex flex-col space-y-4">
       <div>
-        <Label for="name" class="font-semibold">Title</Label>
-        <Input id="name" bind:value={reminder.title} />
+        <div class="flex justify-between mb-2">
+          <Label for="name" class="font-semibold">Title</Label>
+          {#if !titleValid}
+            <Label for="name" class="font-semibold text-destructive"
+              >Required</Label
+            >
+          {/if}
+        </div>
+        <Input id="name" bind:value={initialData.title} />
       </div>
       <div>
-        <Label for="username" class="font-semibold">Message</Label>
-        <Input id="username" bind:value={reminder.message} />
+        <div class="flex justify-between mb-2">
+          <Label for="name" class="font-semibold">Message</Label>
+          {#if !messageValid}
+            <Label for="name" class="font-semibold text-destructive"
+              >Required</Label
+            >
+          {/if}
+        </div>
+        <Input id="name" bind:value={initialData.message} />
       </div>
     </div>
     <Tabs.Root value="minutes">
@@ -81,14 +91,10 @@
         <Tabs.Trigger value="custom">Custom</Tabs.Trigger> -->
       </Tabs.List>
       <Tabs.Content value="minutes">
-        <MinuteTab {onSave} />
+        <MinuteTab {onSave} {saveStateValid} />
       </Tabs.Content>
       <Tabs.Content value="hours">
-        <!-- <HourTab
-          bind:interval={reminder.interval}
-          bind:type={reminder.type}
-          bind:desc={reminder.desc}
-        /> -->
+        <HourTab {onSave} {saveStateValid} />
       </Tabs.Content>
     </Tabs.Root>
   </Dialog.Content>

@@ -4,6 +4,10 @@
   import Ellipsis from "lucide-svelte/icons/ellipsis";
   import { getDataContext } from "./DataContext.svelte";
   import type { Reminder } from "./reminder-columns";
+  import Pencil from "lucide-svelte/icons/pencil";
+  import Trash from "lucide-svelte/icons/trash";
+  import Power from "lucide-svelte/icons/power";
+  import PowerOff from "lucide-svelte/icons/power-off";
 
   let { item }: { item: Reminder } = $props();
 
@@ -27,12 +31,16 @@
   <DropdownMenu.Content>
     <DropdownMenu.Group>
       <DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
-      <DropdownMenu.Item onclick={() => data.toggle(item.id)}>
-        {item.active ? "Inactivate reminder" : "Activate reminder"}
+      <DropdownMenu.Item class="cursor-pointer" onclick={() => data.toggle(item.id)}>
+        {#if item.active}
+        <PowerOff/> Deactivate
+        {:else}
+        <Power/> Activate
+        {/if}
       </DropdownMenu.Item>
     </DropdownMenu.Group>
     <DropdownMenu.Separator />
-    <DropdownMenu.Item>View customer</DropdownMenu.Item>
-    <DropdownMenu.Item>View payment details</DropdownMenu.Item>
+    <DropdownMenu.Item class="cursor-pointer"><Pencil />Edit</DropdownMenu.Item>
+    <DropdownMenu.Item class="cursor-pointer" onclick={() => data.delete(item.id)}><Trash />Delete</DropdownMenu.Item>
   </DropdownMenu.Content>
 </DropdownMenu.Root>

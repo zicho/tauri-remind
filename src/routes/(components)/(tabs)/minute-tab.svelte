@@ -1,9 +1,10 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
-  import { Footer } from "@/components/ui/dialog";
-  import type { ReminderType } from "../reminder-columns";
+  import { Input } from "@/components/ui/input";
   import type { ReminderSaveResult } from "@/data/types";
+  import type { ReminderType } from "../reminder-columns";
+  import cronstrue from "cronstrue";
 
   const intervals = [1, 5, 10, 15, 20, 30, 45];
   let selectedInterval = $state(intervals[0]);
@@ -12,18 +13,11 @@
   let desc = $state("");
   let type = $state<ReminderType>("minute_hourly");
 
-  // let {
-  //   interval = $bindable(),
-  //   desc = $bindable(),
-  //   type = $bindable(),
-  // }: {
-  //   interval: string;
-  //   desc: string;
-  //   type: ReminderType;
-  // } = $props();
-
-
-  let { onSave }: { onSave: (result: ReminderSaveResult) => void } = $props();
+  let {
+    onSave,
+    saveStateValid,
+  }: { onSave: (result: ReminderSaveResult) => void; saveStateValid: boolean } =
+    $props();
 
   function save() {
     const result: ReminderSaveResult = {
@@ -39,13 +33,19 @@
     let minute =
       type === "minute_interval" ? `*/${selectedInterval}` : selectedInterval;
     interval = `${minute} * * * *`;
+
     if (type === "minute_hourly") {
-      desc = `This reminder will trigger at a specific minute of every hour, e.g.,
-          "at minute ${selectedInterval} past the hour."`;
+      desc = `Triggers ${cronstrue.toString(interval).toLowerCase()}`;
     } else {
-      desc = `This reminder will trigger at recurring intervals within the hour,
-          e.g., "every ${selectedInterval}th minute."`;
+      desc = `Triggers ${cronstrue.toString(interval).toLowerCase()} within the hour`;
     }
+  });
+
+  let minuteValid = $state(true);
+  const minuteRegex = /^([1-9]|[1-5]\d)$/;
+
+  $effect(() => {
+    minuteValid = minuteRegex.test(selectedInterval.toString());
   });
 </script>
 
@@ -67,7 +67,7 @@
     </div>
   </Card.Header>
   <Card.Content class="space-y-2">
-    <div class="flex space-x-2 pb-4">
+    <div class="flex space-x-2">
       {#each intervals as interval}
         <Button
           variant={interval === selectedInterval ? "default" : "outline"}
@@ -75,14 +75,29 @@
           class="w-full">{interval}</Button
         >
       {/each}
+      <Input
+        class="w-full text-right"
+        placeholder="custom"
+        bind:value={selectedInterval}>Custom</Input
+      >
     </div>
-    <div class="text-center">
-      <Card.Description>
-        {desc}
-      </Card.Description>
-    </div>
-    <Card.Footer>
-      <Button onclick={save} class="w-full">Save</Button>
+    <Card.Description class="text-center py-2 text-md">
+      {#if minuteValid}
+        <p>{desc}</p>
+        <p><strong>Expression: {interval}</strong></p>
+      {:else}
+        <p class="text-destructive">
+          Selected interval must be an integer between 1 and 59, not beginning
+          with zero
+        </p>
+      {/if}
+    </Card.Description>
+    <Card.Footer class="p-0">
+      <Button
+        onclick={save}
+        disabled={!minuteValid || !saveStateValid}
+        class="w-full">Save</Button
+      >
     </Card.Footer>
   </Card.Content>
 </Card.Root>

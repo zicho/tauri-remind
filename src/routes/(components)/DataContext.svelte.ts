@@ -7,35 +7,38 @@ const key = Symbol("REMINDER_DATA_CTX");
 
 export class ReminderTableData {
   data = $state<Reminder[]>([]);
-  #cronJobs = $state<CronJob[]>([]);
+  #cronJobs = new Map<string, CronJob>();
 
   constructor(data: Reminder[]) {
     this.data = data;
 
     onDestroy(() => {
       this.data = [];
-      this.#cronJobs = [];
+      this.#cronJobs = new Map();
     });
   }
 
   public add(item: Reminder) {
     const job = CronJob.from({
       cronTime: item.interval,
-      onTick: function () {
-        sendNotification({
-          title: item.title,
-          body: item.message,
-        });
+      onTick: () => {
+        if (this.data.find(x => x.id === item.id)?.active) {
+          sendNotification({
+            title: item.title,
+            body: item.message,
+          });
+        }
       },
       start: true,
       timeZone: "America/Los_Angeles",
     });
 
     this.data = [item, ...this.data];
-    this.#cronJobs.push(job);
+    this.#cronJobs.set(item.id, job);
   }
 
   public delete(id: string) {
+    this.#cronJobs.delete(id);
     this.data = this.data?.filter((x) => x.id !== id);
   }
 

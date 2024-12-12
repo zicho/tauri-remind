@@ -20,7 +20,8 @@
     "@tauri-apps/plugin-process": "^2.2.0",
     "@tauri-apps/plugin-shell": "^2",
     "@tauri-apps/plugin-window-state": "^2.2.0",
-    "cron": "^3.3.0"
+    "cron": "^3.3.0",
+    "cronstrue": "^2.52.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.5",

@@ -5,18 +5,7 @@
   import { setDataContext } from "./(components)/DataContext.svelte";
   import { columns, type Reminder } from "./(components)/reminder-columns";
 
-  let data = $state<Reminder[]>([
-    // {
-    //   id: crypto.randomUUID(),
-    //   name: "Drick kaffe",
-    //   active: true,
-    // },
-    // {
-    //   id: crypto.randomUUID(),
-    //   name: "Drick öl",
-    //   active: false,
-    // },
-  ]);
+  let data = $state<Reminder[]>([]);
 
   let open = $state(false);
 

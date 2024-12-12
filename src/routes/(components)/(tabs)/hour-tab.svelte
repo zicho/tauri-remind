@@ -3,22 +3,35 @@
   import Input from "@/components/ui/input/input.svelte";
   import Label from "@/components/ui/label/label.svelte";
   import type { ReminderType } from "../reminder-columns";
+  import type { ReminderSaveResult } from "@/data/types";
+  import cronstrue from "cronstrue";
+  import { Button } from "@/components/ui/button";
 
   let selectedHour = $state(1);
   let selectedMinute = $state(0);
 
+  let interval = $state("");
+  let desc = $state("");
+  let type: ReminderType = "hourly";
+
   let {
-    interval = $bindable(),
-    desc = $bindable(),
-    type = $bindable(),
-  }: {
-    interval: string;
-    desc: string;
-    type: ReminderType;
-  } = $props();
+    onSave,
+    saveStateValid,
+  }: { onSave: (result: ReminderSaveResult) => void; saveStateValid: boolean } =
+    $props();
+
+  function save() {
+    const result: ReminderSaveResult = {
+      interval,
+      desc,
+      type,
+    };
+
+    onSave(result);
+  }
 
   let hourValid = $state(true);
-  let minuteInvalid = $state(true);
+  let minuteValid = $state(true);
 
   const hourRegex = /^(0|1?\d|2[0-3])$/;
   const minuteRegex = /^(0|[1-5]?\d)$/;
@@ -28,7 +41,12 @@
   });
 
   $effect(() => {
-    minuteInvalid = minuteRegex.test(selectedMinute.toString());
+    minuteValid = minuteRegex.test(selectedMinute.toString());
+  });
+
+  $effect(() => {
+    interval = `${selectedMinute} */${selectedHour} * * *`;
+    desc = `Triggers ${cronstrue.toString(interval).toLowerCase()}`;
   });
 </script>
 
@@ -45,14 +63,37 @@
       />
       <Label>Minute</Label>
       <Input
-        class={!minuteInvalid ? "border-destructive text-destructive" : ""}
+        class={!minuteValid ? "border-destructive text-destructive" : ""}
         bind:value={selectedMinute}
       />
     </div>
-    <div class="text-center mt-6">
-      <Card.Description>
-        {desc}
-      </Card.Description>
-    </div>
+    <Card.Description class="text-center py-4 text-md">
+      {#if minuteValid && hourValid}
+        <p>{desc}</p>
+        <p><strong>Expression: {interval}</strong></p>
+      {:else}
+        <p class="text-destructive flex flex-col">
+          {#if !hourValid}
+            <span>
+              Selected hour must be an integer between 1 and 23, not beginning
+              with zero
+            </span>
+          {/if}
+          {#if !minuteValid}
+            <span>
+              Selected minute must be an integer between 1 and 59, not beginning
+              with zero
+            </span>
+          {/if}
+        </p>
+      {/if}
+    </Card.Description>
+    <Card.Footer class="p-0">
+      <Button
+        onclick={save}
+        disabled={!minuteValid || !hourValid || !saveStateValid}
+        class="w-full">Save</Button
+      >
+    </Card.Footer>
   </Card.Content>
 </Card.Root>

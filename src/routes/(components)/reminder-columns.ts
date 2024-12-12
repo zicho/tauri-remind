@@ -5,7 +5,7 @@ import X from "lucide-svelte/icons/x";
 import DataTableActions from "./reminder-table-actions.svelte";
 import SortButton from "./sort-button.svelte";
 
-export type ReminderType = "minute_hourly" | "minute_interval";
+export type ReminderType = "minute_hourly" | "minute_interval" | "hourly";
 
 export type Reminder = {
   id: string;
@@ -52,9 +52,9 @@ export const columns: ColumnDef<Reminder>[] = [
     cell: ({ row }) => {
       switch (row.original.type) {
         case "minute_hourly":
-          return "Every hour on minute X";
+          return "Once every hour, at a specific minute";
         case "minute_interval":
-          return "Every Xth minute";
+          return "Multiple times per hour, at specified minutes";
       }
     },
   },

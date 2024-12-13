@@ -73,13 +73,16 @@
 
   let selectedItems = $derived(table.getFilteredSelectedRowModel().rows);
 
-  $inspect(console.dir(selectedItems));
+  const onDeleteManyClick = () => {
+    onDeleteMany?.(selectedItems.map((x) => x.original));
+    table.resetRowSelection();
+  };
 </script>
 
 {#if onDeleteMany}
   <div class="flex justify-end mb-4">
     <Button
-      onclick={() => onDeleteMany(selectedItems.map((x) => x.original))}
+      onclick={onDeleteManyClick}
       disabled={selectedItems.length === 0}
       variant="destructive"><Trash />Delete selected</Button
     >

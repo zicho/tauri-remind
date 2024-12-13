@@ -51,7 +51,7 @@
 </script>
 
 <Dialog.Root {open}>
-  <Dialog.Content class="w-full max-w-4xl">
+  <Dialog.Content class="w-full max-w-4xl h-full">
     <Dialog.Header>
       <Dialog.Title>Adding reminder</Dialog.Title>
       <Dialog.Description>

@@ -47,9 +47,11 @@ export class ReminderTableData {
     this.#cronJobs.set(result.id, job);
   }
 
-  public delete(id: number) {
+  public async delete(id: number) {
     this.#cronJobs.delete(id);
     this.data = this.data?.filter((x) => x.id !== id);
+
+    await db.deleteFrom("reminders").where("id", "=", id).execute();
   }
 
   public deleteMany(items: Reminder[]) {

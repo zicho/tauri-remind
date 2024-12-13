@@ -34,9 +34,6 @@ export const load = (async () => {
 
   const reminders = await db.selectFrom("reminders").selectAll().execute();
 
-  console.dir("reminders page.ts");
-  console.dir(reminders);
-
   return {
     reminders
   };

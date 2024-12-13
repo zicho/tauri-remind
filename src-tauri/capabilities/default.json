@@ -10,6 +10,8 @@
     "shell:allow-open",
     "notification:default",
     "core:app:allow-default-window-icon",
-    "process:default"
+    "process:default",
+    "sql:default",
+    "sql:allow-execute"
   ]
 }

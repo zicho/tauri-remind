@@ -3,7 +3,7 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import { Input } from "@/components/ui/input";
   import type { ReminderSaveResult } from "@/data/types";
-  import type { ReminderType } from "../reminder-columns";
+  import type { ReminderType } from "@/db/schema";
   import cronstrue from "cronstrue";
 
   const intervals = [1, 5, 10, 15, 20, 30, 45];

@@ -5,6 +5,7 @@ import { Menu } from "@tauri-apps/api/menu";
 import { TrayIcon } from "@tauri-apps/api/tray";
 import { exit } from "@tauri-apps/plugin-process";
 import type { PageLoad } from "./$types";
+import { db } from "@/db/db";
 
 export const load = (async () => {
   const menu = await Menu.new({
@@ -31,7 +32,14 @@ export const load = (async () => {
   //   const tray =
   await TrayIcon.new(options);
 
-  return {};
+  const reminders = await db.selectFrom("reminders").selectAll().execute();
+
+  console.dir("reminders page.ts");
+  console.dir(reminders);
+
+  return {
+    reminders
+  };
 }) satisfies PageLoad;
 
 async function onTrayMenuClick(id: string): Promise<void> {

@@ -6,9 +6,9 @@
   import type { ReminderSaveResult } from "@/data/types";
   import MinuteTab from "./(tabs)/minute-tab.svelte";
   import { getDataContext } from "./DataContext.svelte";
-  import type { Reminder } from "./reminder-columns";
   import HourTab from "./(tabs)/hour-tab.svelte";
   import CustomTab from "./(tabs)/custom-tab.svelte";
+  import type { NewReminder, Reminder } from "@/db/schema";
 
   let { open = $bindable() }: { open: boolean } = $props();
 
@@ -31,8 +31,7 @@
   const onSave = (result: ReminderSaveResult) => {
     open = false;
 
-    const reminder: Reminder = {
-      id: crypto.randomUUID(),
+    const reminder: NewReminder = {
       active: true,
       title: initialData.title,
       message: initialData.message,

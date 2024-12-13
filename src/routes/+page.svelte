@@ -3,12 +3,15 @@
   import AddReminderDialog from "./(components)/add-reminder-dialog.svelte";
   import DataTable from "./(components)/data-table.svelte";
   import { setDataContext } from "./(components)/DataContext.svelte";
-  import { columns, type Reminder } from "./(components)/reminder-columns";
+  import { columns } from "./(components)/reminder-columns";
+  import type { Reminder } from "@/db/schema";
 
-  let data = $state<Reminder[]>([]);
+  let { data } = $props();
+
+  let reminders = $state<Reminder[]>(data.reminders);
   let open = $state(false);
 
-  const tableData = setDataContext(data);
+  const tableData = setDataContext(reminders);
 
   const onDeleteMany = (items: Reminder[]) => {
     tableData.deleteMany(items);

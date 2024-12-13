@@ -1,4 +1,4 @@
-import type { ReminderType } from "../../routes/(components)/reminder-columns";
+import type { ReminderType } from "@/db/schema";
 
 export type ReminderSaveResult = {
   cronExpression: string;

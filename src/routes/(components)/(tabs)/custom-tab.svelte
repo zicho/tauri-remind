@@ -5,12 +5,10 @@
   import type { ReminderSaveResult } from "@/data/types";
   import cronstrue from "cronstrue";
   import * as CronParser from "cron-parser";
-  import type { ReminderType } from "../reminder-columns";
 
   let cronExpression = $state("* * * * *");
 
   let desc = $state("");
-  let type: ReminderType = "hourly";
 
   let {
     onSave,
@@ -22,7 +20,7 @@
     const result: ReminderSaveResult = {
       cronExpression,
       desc,
-      type,
+      type: "custom",
     };
 
     onSave(result);

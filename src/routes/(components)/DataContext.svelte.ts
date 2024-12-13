@@ -1,13 +1,15 @@
+import { db } from "@/db/db";
+import type { NewReminder, Reminder } from "@/db/schema";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { CronJob } from "cron";
+import type { Insertable } from "kysely";
 import { getContext, onDestroy, setContext } from "svelte";
-import type { Reminder } from "./reminder-columns";
 
 const key = Symbol("REMINDER_DATA_CTX");
 
 export class ReminderTableData {
   data = $state<Reminder[]>([]);
-  #cronJobs = new Map<string, CronJob>();
+  #cronJobs = new Map<number, CronJob>();
 
   constructor(data: Reminder[]) {
     this.data = data;
@@ -18,11 +20,19 @@ export class ReminderTableData {
     });
   }
 
-  public add(item: Reminder) {
+  public async add(item: NewReminder) {
+    const result = await db.insertInto("reminders")
+      .values(item)
+      .returningAll()
+      .executeTakeFirstOrThrow() as Reminder;
+
+    console.dir("result added:");
+    console.dir(result);
+
     const job = CronJob.from({
       cronTime: item.interval,
       onTick: () => {
-        if (this.data.find(x => x.id === item.id)?.active) {
+        if (this.data.find(x => x.id === result.id)?.active) {
           sendNotification({
             title: item.title,
             body: item.message,
@@ -33,13 +43,11 @@ export class ReminderTableData {
       // timeZone: "America/Los_Angeles",
     });
 
-    console.dir(item)
-
-    this.data = [item, ...this.data];
-    this.#cronJobs.set(item.id, job);
+    this.data = [result, ...this.data];
+    this.#cronJobs.set(result.id, job);
   }
 
-  public delete(id: string) {
+  public delete(id: number) {
     this.#cronJobs.delete(id);
     this.data = this.data?.filter((x) => x.id !== id);
   }
@@ -58,7 +66,7 @@ export class ReminderTableData {
   }
 
 
-  public toggle(id: string) {
+  public toggle(id: number) {
     const item = this.data.find((x) => x.id === id);
     if (!item) return;
     item.active = !item.active;

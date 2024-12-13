@@ -2,7 +2,6 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import Input from "@/components/ui/input/input.svelte";
   import Label from "@/components/ui/label/label.svelte";
-  import type { ReminderType } from "../reminder-columns";
   import type { ReminderSaveResult } from "@/data/types";
   import cronstrue from "cronstrue";
   import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@
 
   let cronExpression = $state("");
   let desc = $state("");
-  let type: ReminderType = "hourly";
 
   let {
     onSave,
@@ -24,7 +22,7 @@
     const result: ReminderSaveResult = {
       cronExpression,
       desc,
-      type,
+      type: "hourly",
     };
 
     onSave(result);

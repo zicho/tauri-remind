@@ -5,18 +5,7 @@ import X from "lucide-svelte/icons/x";
 import DataTableActions from "./reminder-table-actions.svelte";
 import SortButton from "./sort-button.svelte";
 import { Checkbox } from "@/components/ui/checkbox";
-
-export type ReminderType = "minute_hourly" | "minute_interval" | "hourly";
-
-export type Reminder = {
-  id: string;
-  title: string;
-  message: string;
-  desc: string;
-  interval: string;
-  active: boolean;
-  type: ReminderType;
-};
+import type { Reminder } from "@/db/schema";
 
 export const columns: ColumnDef<Reminder>[] = [
   {

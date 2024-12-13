@@ -4,25 +4,30 @@
     FlexRender,
   } from "$lib/components/ui/data-table/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
+  import { Button } from "@/components/ui/button";
 
   import {
     type ColumnDef,
     type PaginationState,
     type SortingState,
+    type RowSelectionState,
     getCoreRowModel,
     getPaginationRowModel,
     getSortedRowModel,
   } from "@tanstack/table-core";
+  import Trash from "lucide-svelte/icons/trash";
 
   type DataTableProps<TData, TValue> = {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    onDeleteMany?: (items: TData[]) => void;
   };
 
-  let { columns, data }: DataTableProps<TData, TValue> = $props();
+  let { columns, data, onDeleteMany }: DataTableProps<TData, TValue> = $props();
 
   let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
   let sorting = $state<SortingState>([]);
+  let rowSelection = $state<RowSelectionState>({});
 
   const table = createSvelteTable({
     get data() {
@@ -46,6 +51,13 @@
         pagination = updater;
       }
     },
+    onRowSelectionChange: (updater) => {
+      if (typeof updater === "function") {
+        rowSelection = updater(rowSelection);
+      } else {
+        rowSelection = updater;
+      }
+    },
     state: {
       get pagination() {
         return pagination;
@@ -53,10 +65,26 @@
       get sorting() {
         return sorting;
       },
+      get rowSelection() {
+        return rowSelection;
+      },
     },
   });
+
+  let selectedItems = $derived(table.getFilteredSelectedRowModel().rows);
+
+  $inspect(console.dir(selectedItems));
 </script>
 
+{#if onDeleteMany}
+  <div class="flex justify-end mb-4">
+    <Button
+      onclick={() => onDeleteMany(selectedItems.map((x) => x.original))}
+      disabled={selectedItems.length === 0}
+      variant="destructive"><Trash />Delete selected</Button
+    >
+  </div>
+{/if}
 <div class="rounded-md border">
   <Table.Root>
     <Table.Header>
@@ -96,4 +124,12 @@
       {/each}
     </Table.Body>
   </Table.Root>
+</div>
+
+<div class="flex justify-between my-4">
+  <div class="text-muted-foreground flex-1">
+    {table.getFilteredSelectedRowModel().rows.length} of{" "}
+    {table.getFilteredRowModel().rows.length} row(s) selected.
+  </div>
+  <div>Pagination</div>
 </div>

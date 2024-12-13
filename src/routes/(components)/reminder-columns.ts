@@ -4,6 +4,7 @@ import Check from "lucide-svelte/icons/check";
 import X from "lucide-svelte/icons/x";
 import DataTableActions from "./reminder-table-actions.svelte";
 import SortButton from "./sort-button.svelte";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export type ReminderType = "minute_hourly" | "minute_interval" | "hourly";
 
@@ -18,6 +19,29 @@ export type Reminder = {
 };
 
 export const columns: ColumnDef<Reminder>[] = [
+  {
+    id: "select",
+    header: ({ table }) =>
+      renderComponent(Checkbox, {
+        checked: table.getIsAllPageRowsSelected(),
+        disabled: table.getRowCount() === 0,
+        indeterminate:
+          table.getIsSomePageRowsSelected() &&
+          !table.getIsAllPageRowsSelected(),
+        onCheckedChange: (value) => table.toggleAllPageRowsSelected(!!value),
+        controlledChecked: true,
+        "aria-label": "Select all",
+      }),
+    cell: ({ row }) =>
+      renderComponent(Checkbox, {
+        checked: row.getIsSelected(),
+        onCheckedChange: (value) => row.toggleSelected(!!value),
+        controlledChecked: true,
+        "aria-label": "Select row",
+      }),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "title",
     header: ({ column }) =>

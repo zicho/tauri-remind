@@ -6,19 +6,20 @@
   import { columns, type Reminder } from "./(components)/reminder-columns";
 
   let data = $state<Reminder[]>([]);
-
   let open = $state(false);
 
-  $inspect(data);
-
   const tableData = setDataContext(data);
+
+  const onDeleteMany = (items: Reminder[]) => {
+    tableData.deleteMany(items);
+  };
 </script>
 
 <main class="p-8">
-  <DataTable data={tableData.data} {columns} />
+  <DataTable data={tableData.data} {columns} {onDeleteMany} />
 
   <Button
-    class="w-full my-4"
+    class="w-full"
     onclick={() => {
       open = false;
       open = true;

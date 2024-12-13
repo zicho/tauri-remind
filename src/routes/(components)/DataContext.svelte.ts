@@ -44,6 +44,20 @@ export class ReminderTableData {
     this.data = this.data?.filter((x) => x.id !== id);
   }
 
+  public deleteMany(items: Reminder[]) {
+    // Create a Set of IDs for efficient lookups
+    const idSet = new Set(items.map(x => x.id));
+
+    // Filter the #cronJobs map
+    this.#cronJobs = new Map(
+      Array.from(this.#cronJobs).filter(([key]) => !idSet.has(key))
+    );
+
+    // Filter the data array
+    this.data = this.data?.filter(item => !idSet.has(item.id));
+  }
+
+
   public toggle(id: string) {
     const item = this.data.find((x) => x.id === id);
     if (!item) return;

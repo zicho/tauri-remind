@@ -51,9 +51,9 @@
   <Card.Content class="py-4">
     <div class="flex flex-col items-center space-y-2">
       <div>
-        <span class="text-neutral-600 font-semibold">Cheat sheet:</span>
+        <span class="text-muted-foreground font-semibold">Cheat sheet:</span>
       </div>
-      <div class="text-neutral-500 flex justify-center space-x-4 w-full">
+      <div class="text-muted-foreground flex justify-center space-x-4 w-full">
         <span>Minute</span>
         <span>Hour</span>
         <span>Day (month)</span>

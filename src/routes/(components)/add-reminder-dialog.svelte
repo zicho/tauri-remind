@@ -28,7 +28,7 @@
   let messageValid = $derived(initialData.message.length > 0);
   let saveStateValid = $derived(titleValid && messageValid);
 
-  const onSave = (result: ReminderSaveResult) => {
+  const onSave = async (result: ReminderSaveResult) => {
     open = false;
 
     const reminder: NewReminder = {
@@ -40,7 +40,7 @@
       type: result.type,
     };
 
-    data.add(reminder);
+    await data.add(reminder);
 
     initialData = {
       title: "",

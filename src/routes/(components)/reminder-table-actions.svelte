@@ -3,11 +3,11 @@
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import Ellipsis from "lucide-svelte/icons/ellipsis";
   import { getDataContext } from "./DataContext.svelte";
-  import type { Reminder } from "./reminder-columns";
   import Pencil from "lucide-svelte/icons/pencil";
   import Trash from "lucide-svelte/icons/trash";
   import Power from "lucide-svelte/icons/power";
   import PowerOff from "lucide-svelte/icons/power-off";
+  import type { Reminder } from "@/db/schema";
 
   let { item }: { item: Reminder } = $props();
 
@@ -41,6 +41,6 @@
     </DropdownMenu.Group>
     <DropdownMenu.Separator />
     <DropdownMenu.Item class="cursor-pointer"><Pencil />Edit</DropdownMenu.Item>
-    <DropdownMenu.Item class="cursor-pointer" onclick={() => data.delete(item.id)}><Trash />Delete</DropdownMenu.Item>
+    <DropdownMenu.Item class="cursor-pointer" onclick={async () => await data.delete(item.id)}><Trash />Delete</DropdownMenu.Item>
   </DropdownMenu.Content>
 </DropdownMenu.Root>

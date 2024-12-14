@@ -1,8 +1,7 @@
-import { db } from "@/db/db";
 import type { NewReminder, Reminder } from "@/db/schema";
+import { ReminderRepository } from "@/db/repos/ReminderRepository";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { CronJob } from "cron";
-import type { Insertable } from "kysely";
 import { getContext, onDestroy, setContext } from "svelte";
 
 const key = Symbol("REMINDER_DATA_CTX");
@@ -10,9 +9,14 @@ const key = Symbol("REMINDER_DATA_CTX");
 export class ReminderTableData {
   data = $state<Reminder[]>([]);
   #cronJobs = new Map<number, CronJob>();
+  repo = new ReminderRepository();
 
   constructor(data: Reminder[]) {
     this.data = data;
+
+    for (const item of data) {
+      this.mapReminderToCronJob(item);
+    }
 
     onDestroy(() => {
       this.data = [];
@@ -20,19 +24,11 @@ export class ReminderTableData {
     });
   }
 
-  public async add(item: NewReminder) {
-    const result = await db.insertInto("reminders")
-      .values(item)
-      .returningAll()
-      .executeTakeFirstOrThrow() as Reminder;
-
-    console.dir("result added:");
-    console.dir(result);
-
+  private mapReminderToCronJob(item: Reminder) {
     const job = CronJob.from({
       cronTime: item.interval,
       onTick: () => {
-        if (this.data.find(x => x.id === result.id)?.active) {
+        if (this.data.find((x) => x.id === item.id)?.active) {
           sendNotification({
             title: item.title,
             body: item.message,
@@ -43,20 +39,36 @@ export class ReminderTableData {
       // timeZone: "America/Los_Angeles",
     });
 
+    this.#cronJobs.set(item.id, job);
+  }
+
+  public async add(item: NewReminder) {
+    const operation = await this.repo.create({ data: item });
+
+    if (!operation.success) return; // todo: error handle
+
+    const result = operation.result!;
+    this.mapReminderToCronJob(result);
     this.data = [result, ...this.data];
-    this.#cronJobs.set(result.id, job);
   }
 
   public async delete(id: number) {
+    const operation = await this.repo.delete({ id });
+
+    if (!operation.success) return; // todo: error handle
+
     this.#cronJobs.delete(id);
     this.data = this.data?.filter((x) => x.id !== id);
-
-    await db.deleteFrom("reminders").where("id", "=", id).execute();
   }
 
-  public deleteMany(items: Reminder[]) {
+  public async deleteMany(items: Reminder[]) {
+    const ids = items.map((x) => x.id);
+
+    const operation = await this.repo.deleteRange({ ids });
+    if (!operation.success) return; // todo: error handle
+
     // Create a Set of IDs for efficient lookups
-    const idSet = new Set(items.map(x => x.id));
+    const idSet = new Set(ids);
 
     // Filter the #cronJobs map
     this.#cronJobs = new Map(
@@ -64,9 +76,8 @@ export class ReminderTableData {
     );
 
     // Filter the data array
-    this.data = this.data?.filter(item => !idSet.has(item.id));
+    this.data = this.data?.filter((item) => !idSet.has(item.id));
   }
-
 
   public toggle(id: number) {
     const item = this.data.find((x) => x.id === id);

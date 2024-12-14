@@ -13,8 +13,8 @@
 
   const tableData = setDataContext(reminders);
 
-  const onDeleteMany = (items: Reminder[]) => {
-    tableData.deleteMany(items);
+  const onDeleteMany = async (items: Reminder[]) => {
+    await tableData.deleteMany(items);
   };
 </script>
 

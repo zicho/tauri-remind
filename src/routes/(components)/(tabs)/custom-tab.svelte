@@ -2,22 +2,17 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import { Button } from "@/components/ui/button";
   import Input from "@/components/ui/input/input.svelte";
-  import type { ReminderSaveResult } from "@/data/types";
+  import type { EditorTabProps, SaveNewReminderResult } from "@/data/types";
   import cronstrue from "cronstrue";
   import * as CronParser from "cron-parser";
 
-  let cronExpression = $state("* * * * *");
+  let { onSave, saveStateValid, cronData }: EditorTabProps = $props();
 
+  let cronExpression = $state(cronData?.expression ?? "* * * * *");
   let desc = $state("");
 
-  let {
-    onSave,
-    saveStateValid,
-  }: { onSave: (result: ReminderSaveResult) => void; saveStateValid: boolean } =
-    $props();
-
   function save() {
-    const result: ReminderSaveResult = {
+    const result: SaveNewReminderResult = {
       cronExpression,
       desc,
       type: "custom",
@@ -26,8 +21,14 @@
     onSave(result);
   }
 
+  // for some reason, "CronParser" just logs certain errors without throwing them.
+  // thus this regex is needed to catch the cases it refuses to handle.
+  const cronRegex =
+    /^(\*|([0-5]?\d)) (\*|([0-1]?\d|2[0-3])) (\*|([1-2]?\d|3[0-1])) (\*|(1[0-2]|0?[1-9])) (\*|([0-7]))$/;
+
   const cronExpressionValid = $derived.by(() => {
     try {
+      if (!cronRegex.test(cronExpression)) return false;
       CronParser.parseExpression(cronExpression);
       return true;
     } catch (e) {

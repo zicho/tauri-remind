@@ -3,9 +3,9 @@
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Input } from "@/components/ui/input";
   import Label from "@/components/ui/label/label.svelte";
-  import type { ReminderSaveResult } from "@/data/types";
+  import type { SaveNewReminderResult } from "@/data/types";
   import MinuteTab from "./(tabs)/minute-tab.svelte";
-  import { getDataContext } from "./DataContext.svelte";
+  import { getReminderDataContext } from "../../lib/contexts/ReminderDataContext.svelte";
   import HourTab from "./(tabs)/hour-tab.svelte";
   import CustomTab from "./(tabs)/custom-tab.svelte";
   import type { NewReminder, Reminder } from "@/db/schema";
@@ -22,13 +22,13 @@
     message: "",
   });
 
-  const data = getDataContext();
+  const data = getReminderDataContext();
 
   let titleValid = $derived(initialData.title.length > 0);
   let messageValid = $derived(initialData.message.length > 0);
   let saveStateValid = $derived(titleValid && messageValid);
 
-  const onSave = async (result: ReminderSaveResult) => {
+  const onSave = async (result: SaveNewReminderResult) => {
     open = false;
 
     const reminder: NewReminder = {

@@ -2,24 +2,20 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import Input from "@/components/ui/input/input.svelte";
   import Label from "@/components/ui/label/label.svelte";
-  import type { ReminderSaveResult } from "@/data/types";
+  import type { EditorTabProps, SaveNewReminderResult } from "@/data/types";
   import cronstrue from "cronstrue";
   import { Button } from "@/components/ui/button";
 
-  let selectedHour = $state(1);
-  let selectedMinute = $state(0);
+  let { onSave, saveStateValid, cronData }: EditorTabProps = $props();
+
+  let selectedHour = $state(cronData ? Number(cronData.hours) : 1);
+  let selectedMinute = $state(cronData ? Number(cronData.minutes) : 0);
 
   let cronExpression = $state("");
   let desc = $state("");
 
-  let {
-    onSave,
-    saveStateValid,
-  }: { onSave: (result: ReminderSaveResult) => void; saveStateValid: boolean } =
-    $props();
-
   function save() {
-    const result: ReminderSaveResult = {
+    const result: SaveNewReminderResult = {
       cronExpression,
       desc,
       type: "hourly",

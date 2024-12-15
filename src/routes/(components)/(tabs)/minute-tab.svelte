@@ -2,25 +2,21 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
   import { Input } from "@/components/ui/input";
-  import type { ReminderSaveResult } from "@/data/types";
+  import type { EditorTabProps, SaveNewReminderResult } from "@/data/types";
   import type { ReminderType } from "@/db/schema";
   import cronstrue from "cronstrue";
 
-  const intervals = [1, 5, 10, 15, 20, 30, 45];
-  let selectedInterval = $state(intervals[0]);
+  let { onSave, saveStateValid, cronData }: EditorTabProps = $props();
+
+  const presets = [1, 5, 10, 15, 20, 30, 45];
+  let selectedMinute = $state(cronData ? Number(cronData.minutes) : 1);
 
   let cronExpression = $state("");
   let desc = $state("");
   let type = $state<ReminderType>("minute_hourly");
 
-  let {
-    onSave,
-    saveStateValid,
-  }: { onSave: (result: ReminderSaveResult) => void; saveStateValid: boolean } =
-    $props();
-
   function save() {
-    const result: ReminderSaveResult = {
+    const result: SaveNewReminderResult = {
       cronExpression,
       desc,
       type,
@@ -31,7 +27,7 @@
 
   $effect(() => {
     let minute =
-      type === "minute_interval" ? `*/${selectedInterval}` : selectedInterval;
+      type === "minute_interval" ? `*/${selectedMinute}` : selectedMinute;
     cronExpression = `${minute} * * * *`;
 
     if (type === "minute_hourly") {
@@ -45,7 +41,7 @@
   const minuteRegex = /^([1-9]|[1-5]\d)$/;
 
   $effect(() => {
-    minuteValid = minuteRegex.test(selectedInterval.toString());
+    minuteValid = minuteRegex.test(selectedMinute.toString());
   });
 </script>
 
@@ -68,17 +64,17 @@
   </Card.Header>
   <Card.Content class="space-y-2">
     <div class="flex space-x-2">
-      {#each intervals as interval}
+      {#each presets as preset}
         <Button
-          variant={interval === selectedInterval ? "default" : "outline"}
-          onclick={() => (selectedInterval = interval)}
-          class="w-full">{interval}</Button
+          variant={preset === selectedMinute ? "default" : "outline"}
+          onclick={() => (selectedMinute = preset)}
+          class="w-full">{preset}</Button
         >
       {/each}
       <Input
         class="w-full text-right"
         placeholder="custom"
-        bind:value={selectedInterval}>Custom</Input
+        bind:value={selectedMinute}>Custom</Input
       >
     </div>
     <Card.Description class="text-center py-2 text-md">

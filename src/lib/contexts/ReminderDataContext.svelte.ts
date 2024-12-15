@@ -1,4 +1,4 @@
-import type { NewReminder, Reminder } from "@/db/schema";
+import type { NewReminder, Reminder, ReminderUpdate } from "@/db/schema";
 import { ReminderRepository } from "@/db/repos/ReminderRepository";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { CronJob } from "cron";
@@ -6,7 +6,7 @@ import { getContext, onDestroy, setContext } from "svelte";
 
 const key = Symbol("REMINDER_DATA_CTX");
 
-export class ReminderTableData {
+export class ReminderDataContext {
   data = $state<Reminder[]>([]);
   #cronJobs = new Map<number, CronJob>();
   repo = new ReminderRepository();
@@ -52,6 +52,28 @@ export class ReminderTableData {
     this.data = [result, ...this.data];
   }
 
+  public async get(id: number) {
+    const operation = await this.repo.getById({ id });
+    if (!operation.success) return; // todo: error handle
+    return operation.result!;
+  }
+
+  public async update(id: number, item: ReminderUpdate) {
+    const operation = await this.repo.update({ id, data: item });
+    if (!operation.success) return; // todo: error handle
+
+    let existingItem = this.data.find((x) => x.id === id);
+
+    if (existingItem) {
+      this.data = this.data.map((x) =>
+        x.id === id ? { ...(item as Reminder) } : x
+      );
+      this.mapReminderToCronJob(item as Reminder);
+    }
+
+    return operation.result!;
+  }
+
   public async delete(id: number) {
     const operation = await this.repo.delete({ id });
 
@@ -86,11 +108,13 @@ export class ReminderTableData {
   }
 }
 
-export function setDataContext(initialData: Reminder[]) {
-  const context = setContext(key, new ReminderTableData(initialData));
-  return context;
+export function setReminderDataContext(initialData: Reminder[]) {
+  const state = new ReminderDataContext(initialData);
+  setContext(key, state);
+  return state;
 }
 
-export function getDataContext(): ReminderTableData {
-  return getContext(key);
+export function getReminderDataContext(): ReminderDataContext {
+  const data = getContext<ReminderDataContext>(key);
+  return data;
 }

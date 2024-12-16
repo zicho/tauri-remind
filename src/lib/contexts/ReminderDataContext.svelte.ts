@@ -62,6 +62,14 @@ export class ReminderDataContext {
     const operation = await this.repo.update({ id, data: item });
     if (!operation.success) return; // todo: error handle
 
+    let existingJob = this.#cronJobs.get(id);
+
+    if (existingJob) {
+      existingJob.stop();
+      existingJob.running = false;
+      this.#cronJobs.delete(id);
+    }
+
     let existingItem = this.data.find((x) => x.id === id);
 
     if (existingItem) {

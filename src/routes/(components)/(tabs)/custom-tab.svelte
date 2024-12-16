@@ -21,14 +21,19 @@
     onSave(result);
   }
 
-  // for some reason, "CronParser" just logs certain errors without throwing them.
-  // thus this regex is needed to catch the cases it refuses to handle.
-  const cronRegex =
-    /^(\*|([0-5]?\d)) (\*|([0-1]?\d|2[0-3])) (\*|([1-2]?\d|3[0-1])) (\*|(1[0-2]|0?[1-9])) (\*|([0-7]))$/;
+  function validateCronLength(cron: string): boolean {
+    const groups = cron.trim().split(/\s+/);
+    // Check if there are exactly 5 groups
+    return groups.length === 5;
+  }
 
   const cronExpressionValid = $derived.by(() => {
     try {
-      if (!cronRegex.test(cronExpression)) return false;
+      // for some reason, "CronParser" just logs certain errors with cron length
+      // thus this is needed to catch the cases it refuses to handle, like length being 4.
+      const trimmedCronExpression = cronExpression.replace(/\s+/g, "");
+      if (!validateCronLength(cronExpression)) return false;
+
       CronParser.parseExpression(cronExpression);
       return true;
     } catch (e) {

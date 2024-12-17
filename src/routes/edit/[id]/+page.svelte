@@ -5,7 +5,7 @@
   import { Input } from "@/components/ui/input";
   import Label from "@/components/ui/label/label.svelte";
   import type { CronData, SaveNewReminderResult } from "@/data/types";
-  import type { ReminderUpdate } from "@/db/schema";
+  import type { ReminderType, ReminderUpdate } from "@/db/schema";
   import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
   import X from "lucide-svelte/icons/x";
   import CustomTab from "../../(components)/(tabs)/custom-tab.svelte";
@@ -19,7 +19,7 @@
     message: string;
     interval: string;
     cronData: CronData;
-    type: string;
+    type: ReminderType;
     selectedTab: string;
   };
 
@@ -48,9 +48,10 @@
       type: result.type,
     };
 
-    await context.update(reminder.id!, reminder);
+    // await context.update(reminder.id!, reminder);
     const webview = WebviewWindow.getCurrent();
-    webview.emit("reminder-saved");
+
+    webview.emit("reminder-saved", reminder);
     webview.close();
   };
 </script>
@@ -97,14 +98,20 @@
     <Tabs.List class="grid w-full grid-cols-3 mb-4">
       <Tabs.Trigger value="minutes">By minute</Tabs.Trigger>
       <Tabs.Trigger value="hours">Hourly</Tabs.Trigger>
-      <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
+      <!-- TODO: Create these tabs too -->
       <!-- <Tabs.Trigger value="days">Daily</Tabs.Trigger>
         <Tabs.Trigger value="weeks">Weekly</Tabs.Trigger>
-        <Tabs.Trigger value="months">Monthly</Tabs.Trigger>-->
+        <Tabs.Trigger value="months">Monthly</Tabs.Trigger> -->
+      <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
     </Tabs.List>
 
     <Tabs.Content value="minutes">
-      <MinuteTab {onSave} {saveStateValid} cronData={data.cronData} />
+      <MinuteTab
+        {onSave}
+        {saveStateValid}
+        cronData={data.cronData}
+        reminderType={data.type}
+      />
     </Tabs.Content>
     <Tabs.Content value="hours">
       <HourTab {onSave} {saveStateValid} cronData={data.cronData} />

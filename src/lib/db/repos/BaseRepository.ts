@@ -24,8 +24,7 @@ interface IRepository<TEntity, TNewEntity> {
 }
 
 export abstract class BaseRepository<TEntity, TNewEntity>
-  implements IRepository<TEntity, TNewEntity>
-{
+  implements IRepository<TEntity, TNewEntity> {
   table: keyof Database;
 
   constructor(tableName: keyof Database) {
@@ -94,6 +93,7 @@ export abstract class BaseRepository<TEntity, TNewEntity>
 
       return successfulOperation({ data: result });
     } catch (error) {
+      console.log(error)
       return failedOperation({ error });
     }
   }

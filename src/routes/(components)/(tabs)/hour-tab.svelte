@@ -5,12 +5,14 @@
   import type { EditorTabProps, SaveNewReminderResult } from "@/data/types";
   import cronstrue from "cronstrue";
   import { Button } from "@/components/ui/button";
-  import { parseNumberOrFallback } from "@/utils";
+  import { parseNumberOrReturnFallback } from "@/utils";
 
   let { onSave, saveStateValid, cronData }: EditorTabProps = $props();
 
-  let selectedHour = $state(parseNumberOrFallback(cronData?.hours, 1));
-  let selectedMinute = $state(parseNumberOrFallback(cronData?.minutes, 0));
+  let selectedHour = $state(parseNumberOrReturnFallback(cronData?.hours, 1));
+  let selectedMinute = $state(
+    parseNumberOrReturnFallback(cronData?.minutes, 0)
+  );
 
   let cronExpression = $state("");
   let desc = $state("");

@@ -1,18 +1,16 @@
 <script lang="ts">
   import * as Tabs from "$lib/components/ui/tabs/index.js";
+  import Button from "@/components/ui/button/button.svelte";
   import { Input } from "@/components/ui/input";
   import Label from "@/components/ui/label/label.svelte";
   import type { SaveNewReminderResult } from "@/data/types";
-  import ArrowLeft from "lucide-svelte/icons/arrow-left";
   import type { NewReminder } from "@/db/schema";
-  import MinuteTab from "../(components)/(tabs)/minute-tab.svelte";
-  import HourTab from "../(components)/(tabs)/hour-tab.svelte";
-  import CustomTab from "../(components)/(tabs)/custom-tab.svelte";
-  import { goto } from "$app/navigation";
-  import { getReminderDataContext } from "../../lib/contexts/ReminderDataContext.svelte";
-  import Button from "@/components/ui/button/button.svelte";
   import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
   import X from "lucide-svelte/icons/x";
+  import CustomTab from "../(components)/(tabs)/custom-tab.svelte";
+  import HourTab from "../(components)/(tabs)/hour-tab.svelte";
+  import MinuteTab from "../(components)/(tabs)/minute-tab.svelte";
+  import { getReminderDataContext } from "../../lib/contexts/ReminderDataContext.svelte";
 
   type ReminderData = {
     title: string;
@@ -40,9 +38,9 @@
       type: result.type,
     };
 
-    await context.add(reminder);
     const webview = WebviewWindow.getCurrent();
-    webview.emit("reminder-saved");
+
+    webview.emit("reminder-saved", reminder);
     webview.close();
   };
 </script>

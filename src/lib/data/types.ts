@@ -1,4 +1,4 @@
-import type { ReminderType } from "@/db/schema";
+import type { NewReminder, ReminderType, ReminderUpdate } from "@/db/schema";
 
 export type EditorTabProps = {
   onSave: (result: SaveNewReminderResult) => void;
@@ -10,6 +10,10 @@ export type SaveNewReminderResult = {
   cronExpression: string;
   desc: string;
   type: ReminderType;
+};
+
+export type ReminderDataCallback = {
+  payload: NewReminder | ReminderUpdate
 };
 
 export type SaveEditedReminderResult = SaveNewReminderResult & {

@@ -10,7 +10,7 @@ const key = Symbol("REMINDER_DATA_CTX");
 export class ReminderDataContext {
   data = $state<Reminder[]>([]);
   #cronJobs = new Map<number, CronJob>();
-  repo = new ReminderRepository();
+  #repo = new ReminderRepository();
 
   constructor(data: Reminder[]) {
     this.data = data;
@@ -18,6 +18,8 @@ export class ReminderDataContext {
     for (const item of data) {
       this.mapReminderToCronJob(item);
     }
+
+    $inspect(this.data);
 
     onDestroy(() => {
       this.data = [];
@@ -51,7 +53,7 @@ export class ReminderDataContext {
   }
 
   public async add(item: NewReminder) {
-    const operation = await this.repo.create({ data: item });
+    const operation = await this.#repo.create({ data: item });
 
     if (!operation.success) return; // todo: error handle
 
@@ -61,13 +63,13 @@ export class ReminderDataContext {
   }
 
   public async get(id: number) {
-    const operation = await this.repo.getById({ id });
+    const operation = await this.#repo.getById({ id });
     if (!operation.success) return; // todo: error handle
     return operation.result!;
   }
 
   public async update(id: number, item: ReminderUpdate) {
-    const operation = await this.repo.update({ id, data: item });
+    const operation = await this.#repo.update({ id, data: item });
     if (!operation.success) return; // todo: error handle
 
     let existingJob = this.#cronJobs.get(id);
@@ -83,7 +85,6 @@ export class ReminderDataContext {
 
     if (cronJob) {
       cronJob.running = false;
-      console.dir(this.#cronJobs);
     }
 
     if (existingItem) {
@@ -99,7 +100,7 @@ export class ReminderDataContext {
   }
 
   public async delete(id: number) {
-    const operation = await this.repo.delete({ id });
+    const operation = await this.#repo.delete({ id });
 
     if (!operation.success) return; // todo: error handle
 
@@ -110,7 +111,7 @@ export class ReminderDataContext {
   public async deleteMany(items: Reminder[]) {
     const ids = items.map((x) => x.id);
 
-    const operation = await this.repo.deleteRange({ ids });
+    const operation = await this.#repo.deleteRange({ ids });
     if (!operation.success) return; // todo: error handle
 
     // Create a Set of IDs for efficient lookups

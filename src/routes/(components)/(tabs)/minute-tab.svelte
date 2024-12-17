@@ -4,16 +4,24 @@
   import { Input } from "@/components/ui/input";
   import type { EditorTabProps, SaveNewReminderResult } from "@/data/types";
   import type { ReminderType } from "@/db/schema";
+  import { parseNumberOrReturnFallback } from "@/utils";
   import cronstrue from "cronstrue";
 
-  let { onSave, saveStateValid, cronData }: EditorTabProps = $props();
+  let {
+    onSave,
+    saveStateValid,
+    cronData,
+    reminderType,
+  }: EditorTabProps & { reminderType?: ReminderType } = $props();
 
   const presets = [1, 5, 10, 15, 20, 30, 45];
-  let selectedMinute = $state(cronData ? Number(cronData.minutes) : 1);
+  let selectedMinute = $state(
+    parseNumberOrReturnFallback(cronData?.minutes, 1)
+  );
 
   let cronExpression = $state("");
   let desc = $state("");
-  let type = $state<ReminderType>("minute_hourly");
+  let type = $state<ReminderType>(reminderType ?? "minute_hourly");
 
   function save() {
     const result: SaveNewReminderResult = {

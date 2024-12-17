@@ -26,3 +26,12 @@ function simplifyCronValue(value: string): string | number {
   }
   return value;
 }
+
+export function parseNumberOrFallback(value: any, fallback: number) {
+  try {
+    const parsed = Number(value);
+    return isNaN(parsed) ? fallback : parsed;
+  } catch {
+    return fallback;
+  }
+}

@@ -79,11 +79,19 @@ export class ReminderDataContext {
     }
 
     let existingItem = this.data.find((x) => x.id === id);
+    const cronJob = this.#cronJobs.get(id);
+
+    if (cronJob) {
+      cronJob.running = false;
+      console.dir(this.#cronJobs);
+    }
 
     if (existingItem) {
       this.data = this.data.map((x) =>
         x.id === id ? { ...(item as Reminder) } : x
       );
+
+      this.#cronJobs.delete(item.id!);
       this.mapReminderToCronJob(item as Reminder);
     }
 

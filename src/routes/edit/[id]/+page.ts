@@ -3,6 +3,8 @@ import type { PageLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { parseCronExpression } from "@/utils";
 
+export const prerender = false;
+
 export const load = (async ({ params }) => {
   const getReminderOperation = await new ReminderRepository().getById({
     id: Number(params.id),

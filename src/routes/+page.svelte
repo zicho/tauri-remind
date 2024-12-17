@@ -1,5 +1,6 @@
 <script lang="ts">
   import Button from "@/components/ui/button/button.svelte";
+  import type { ReminderDataCallback } from "@/data/types";
   import type { NewReminder, Reminder, ReminderUpdate } from "@/db/schema";
   import { convertFileSrc } from "@tauri-apps/api/core";
   import { listen } from "@tauri-apps/api/event";
@@ -9,8 +10,6 @@
   import DataTable from "./(components)/data-table.svelte";
   import { columns } from "./(components)/reminder-columns";
   import { openCreateReminderWindow } from "./(utils)/openReminderModal";
-  import type { ReminderDataCallback } from "@/data/types";
-  import { toast } from "svelte-sonner";
 
   let assetUrl = $state("");
 

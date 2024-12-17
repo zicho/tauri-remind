@@ -4,6 +4,7 @@ import { sendNotification } from "@tauri-apps/plugin-notification";
 import { CronJob } from "cron";
 import { getContext, onDestroy, setContext } from "svelte";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { toast } from "svelte-sonner";
 
 const key = Symbol("REMINDER_DATA_CTX");
 
@@ -55,22 +56,36 @@ export class ReminderDataContext {
   public async add(item: NewReminder) {
     const operation = await this.#repo.create({ data: item });
 
-    if (!operation.success) return; // todo: error handle
+    if (!operation.success) {
+      toast.error("Could not create reminder");
+      return;
+    };
 
     const result = operation.result!;
     this.mapReminderToCronJob(result);
     this.data = [result, ...this.data];
+
+    toast.success("Reminder created successfully!");
   }
 
   public async get(id: number) {
     const operation = await this.#repo.getById({ id });
-    if (!operation.success) return; // todo: error handle
+
+    if (!operation.success) {
+      toast.error("Could not get reminder");
+      return;
+    };
+
     return operation.result!;
   }
 
   public async update(id: number, item: ReminderUpdate) {
     const operation = await this.#repo.update({ id, data: item });
-    if (!operation.success) return; // todo: error handle
+
+    if (!operation.success) {
+      toast.error("Could not update reminder");
+      return;
+    };
 
     let existingJob = this.#cronJobs.get(id);
 
@@ -96,23 +111,33 @@ export class ReminderDataContext {
       this.mapReminderToCronJob(item as Reminder);
     }
 
+    toast.success("Reminder updated successfully!");
     return operation.result!;
   }
 
   public async delete(id: number) {
     const operation = await this.#repo.delete({ id });
 
-    if (!operation.success) return; // todo: error handle
+    if (!operation.success) {
+      toast.error("Could not delete reminder");
+      return;
+    };
 
     this.#cronJobs.delete(id);
     this.data = this.data?.filter((x) => x.id !== id);
+
+    toast.success("Reminder deleted successfully!");
   }
 
   public async deleteMany(items: Reminder[]) {
     const ids = items.map((x) => x.id);
 
     const operation = await this.#repo.deleteRange({ ids });
-    if (!operation.success) return; // todo: error handle
+
+    if (!operation.success) {
+      toast.error("Failed to delete reminders");
+      return;
+    };
 
     // Create a Set of IDs for efficient lookups
     const idSet = new Set(ids);
@@ -124,6 +149,8 @@ export class ReminderDataContext {
 
     // Filter the data array
     this.data = this.data?.filter((item) => !idSet.has(item.id));
+
+    toast.success("Reminders deleted successfully!");
   }
 
   public toggle(id: number) {

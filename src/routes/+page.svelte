@@ -30,10 +30,8 @@
       // Perform any actions, such as refreshing context or showing a toast
       if (event.payload.id) {
         await context.update(event.payload.id, event.payload as ReminderUpdate);
-        toast.success("Reminder updated successfully!");
       } else {
         await context.add(event.payload as NewReminder);
-        toast.success("Reminder saved successfully!");
       }
     });
   };

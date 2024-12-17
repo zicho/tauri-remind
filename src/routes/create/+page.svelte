@@ -11,6 +11,8 @@
   import { goto } from "$app/navigation";
   import { getReminderDataContext } from "../../lib/contexts/ReminderDataContext.svelte";
   import Button from "@/components/ui/button/button.svelte";
+  import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+  import X from "lucide-svelte/icons/x";
 
   type ReminderData = {
     title: string;
@@ -39,18 +41,20 @@
     };
 
     await context.add(reminder);
-
-    goto("/");
+    const webview = WebviewWindow.getCurrent();
+    webview.emit("reminder-saved");
+    webview.close();
   };
 </script>
 
 <main class="p-8">
   <section class="flex flex-col space-y-4 mb-6">
-    <div class="flex">
-      <Button onclick={() => goto("/")} class="aspect-square mr-4"
-        ><ArrowLeft /></Button
+    <div class="flex justify-between">
+      <h1 class="text-4xl">Create new reminder</h1>
+      <Button
+        onclick={() => WebviewWindow.getCurrent().close()}
+        class="aspect-square mr-4"><X /></Button
       >
-      <h1 class="text-4xl">Adding reminder</h1>
     </div>
     <p class="text-muted-foreground text-lg">
       Adding a new reminder. Modify the settings and press save.

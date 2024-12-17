@@ -18,7 +18,13 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self' ipc:; img-src 'self' asset:",
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "assets/**"
+        ]
+      }
     }
   },
   "bundle": {

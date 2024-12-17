@@ -3,6 +3,7 @@ import { ReminderRepository } from "@/db/repos/ReminderRepository";
 import { sendNotification } from "@tauri-apps/plugin-notification";
 import { CronJob } from "cron";
 import { getContext, onDestroy, setContext } from "svelte";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 const key = Symbol("REMINDER_DATA_CTX");
 
@@ -27,11 +28,18 @@ export class ReminderDataContext {
   private mapReminderToCronJob(item: Reminder) {
     const job = CronJob.from({
       cronTime: item.interval,
-      onTick: () => {
+      onTick: async () => {
         if (this.data.find((x) => x.id === item.id)?.active) {
           sendNotification({
             title: item.title,
             body: item.message,
+            icon: convertFileSrc("assets/32x32.png"),
+            attachments: [
+              {
+                id: 'image-1',
+                url: "http://asset.localhost/assets/32x32.png"
+              },
+            ],
           });
         }
       },

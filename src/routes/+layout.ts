@@ -6,6 +6,7 @@ import { Menu } from "@tauri-apps/api/menu";
 import { TrayIcon } from "@tauri-apps/api/tray";
 import { db } from "@/db/db";
 import { exit } from "@tauri-apps/plugin-process";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 // See: https://v2.tauri.app/start/frontend/sveltekit/ for more info
 export const prerender = true;
@@ -38,6 +39,12 @@ export const load: LayoutLoad = async () => {
 
   const reminders = await db.selectFrom("reminders").selectAll().execute();
 
+  const window = await WebviewWindow.getByLabel("main");
+
+  window?.onCloseRequested(async () => {
+    await exitApp(); // todo: ask if minimize to tray instead
+  })
+
   return {
     reminders,
   };
@@ -45,5 +52,13 @@ export const load: LayoutLoad = async () => {
 
 async function onTrayMenuClick(id: string): Promise<void> {
   if (id === "focus") app.show();
-  else if (id === "quit") await exit(0);
+  else if (id === "quit") await exitApp();
+}
+
+async function exitApp() {
+  for (const window of await WebviewWindow.getAll()) {
+    window.close();
+  }
+
+  await exit(0)
 }

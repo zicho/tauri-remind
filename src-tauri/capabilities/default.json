@@ -3,7 +3,8 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": [
-    "main"
+    "main",
+    "reminder-modal"
   ],
   "permissions": [
     "core:default",
@@ -12,6 +13,10 @@
     "core:app:allow-default-window-icon",
     "process:default",
     "sql:default",
-    "sql:allow-execute"
+    "sql:allow-execute",
+    "core:window:allow-create",
+    "core:window:allow-close",
+    "core:webview:allow-create-webview",
+    "core:webview:allow-create-webview-window"
   ]
 }

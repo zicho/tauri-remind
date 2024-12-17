@@ -9,6 +9,7 @@
   import type { Reminder } from "@/db/schema";
   import { getReminderDataContext } from "../../lib/contexts/ReminderDataContext.svelte";
   import { goto } from "$app/navigation";
+  import { openEditReminderWindow } from "../(utils)/openReminderModal";
 
   let { item }: { item: Reminder } = $props();
 
@@ -46,7 +47,7 @@
     <DropdownMenu.Separator />
     <DropdownMenu.Item
       class="cursor-pointer"
-      onclick={async () => goto(`/edit/${item.id}`)}
+      onclick={() => openEditReminderWindow(item.id)}
       ><Pencil />Edit</DropdownMenu.Item
     >
     <DropdownMenu.Item

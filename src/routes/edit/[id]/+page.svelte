@@ -1,17 +1,17 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
+  import Button from "@/components/ui/button/button.svelte";
   import { Input } from "@/components/ui/input";
   import Label from "@/components/ui/label/label.svelte";
   import type { CronData, SaveNewReminderResult } from "@/data/types";
-  import ArrowLeft from "lucide-svelte/icons/arrow-left";
-  import type { NewReminder, Reminder, ReminderUpdate } from "@/db/schema";
-  import MinuteTab from "../../(components)/(tabs)/minute-tab.svelte";
-  import HourTab from "../../(components)/(tabs)/hour-tab.svelte";
+  import type { ReminderUpdate } from "@/db/schema";
+  import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+  import X from "lucide-svelte/icons/x";
   import CustomTab from "../../(components)/(tabs)/custom-tab.svelte";
-  import { goto } from "$app/navigation";
+  import HourTab from "../../(components)/(tabs)/hour-tab.svelte";
+  import MinuteTab from "../../(components)/(tabs)/minute-tab.svelte";
   import { getReminderDataContext } from "../../../lib/contexts/ReminderDataContext.svelte";
-  import Button from "@/components/ui/button/button.svelte";
-  import { page } from "$app/stores";
 
   type EditReminderData = {
     id: number;
@@ -49,18 +49,20 @@
     };
 
     await context.update(reminder.id!, reminder);
-
-    goto("/");
+    const webview = WebviewWindow.getCurrent();
+    webview.emit("reminder-saved");
+    webview.close();
   };
 </script>
 
 <main class="p-8">
   <section class="flex flex-col space-y-4 mb-6">
-    <div class="flex">
-      <Button onclick={() => goto("/")} class="aspect-square mr-4"
-        ><ArrowLeft /></Button
+    <div class="flex justify-between">
+      <h1 class="text-4xl">Edit reminder</h1>
+      <Button
+        onclick={() => WebviewWindow.getCurrent().close()}
+        class="aspect-square mr-4"><X /></Button
       >
-      <h1 class="text-4xl">Editing reminder</h1>
     </div>
     <p class="text-muted-foreground text-lg">
       Editing an existing reminder. Modify the settings and press save.
